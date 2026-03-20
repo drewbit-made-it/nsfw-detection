@@ -48,12 +48,14 @@ docker run --rm --name nsfw-detection-demo \
   -p 8080:8080 \
   -e API_KEY=your-secret-key \
   -e MAX_IMAGE_MB=10 \
+  -e SERVERLESS=true \
   drewbitmadeit/nsfw-detection:latest
 ```
 | Flag | Purpose |
 |---|---|
 | `-e API_KEY=...` | Bearer token required on every `/classify` request |
 | `-e MAX_IMAGE_MB=10` | Max image size in MB (default `10`, ceiling `50`) |
+| `-e SERVERLESS=true` | `true` (default): 1 thread, low RAM; `false`: multi-core, pooled RAM |
 | `-p 8080:8080` | Map host port → container port (`-p <host>:<container>`) |
 
 Change `-p 9090:8080` to expose on a different host port. The container always listens on `8080` internally.
@@ -135,6 +137,16 @@ uv run uvicorn main:app --port 8080 --reload
 
 ---
 
+## Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `API_KEY` | *(none)* | Bearer token required on every `/classify` request. Leave unset to disable auth (not recommended in production). |
+| `MAX_IMAGE_MB` | `10` | Max image fetch size in MB. Hard ceiling is `50`. Supports decimals (e.g. `0.5` for 500 KB). |
+| `SERVERLESS` | `true` | `true`: 1 thread, no memory pooling — optimized for low-RAM serverless environments. `false`: auto-detect all CPU cores and pool memory — optimized for VPS or dedicated hosts. |
+
+---
+
 ## Integrating with Docker Compose
 
 This image is designed to run as an internal service — not exposed to the public internet. Add it to your existing `docker-compose.yml` without a `ports:` mapping so only services on the same network can reach it:
@@ -155,6 +167,8 @@ services:
       - "8080"
     environment:
       - API_KEY=your-secret-key
+      - SERVERLESS=false  # set false on VPS/dedicated hosts; true (default) for serverless/low-RAM
+      - MAX_IMAGE_MB=10
     networks:
       - backend
 
