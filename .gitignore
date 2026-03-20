@@ -1,5 +1,5 @@
 # Model — too large for git, regenerate with ./setup.sh
-model.onnx
+*.onnx
 nsfw_model/
 
 # Virtual environment

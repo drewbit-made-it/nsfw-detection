@@ -17,5 +17,13 @@ fi
 echo "==> Installing dependencies..."
 uv sync
 
+if [ ! -f model_int8.onnx ]; then
+  echo "==> Generating int8 model..."
+  uv run --extra quantize python quantize.py
+else
+  echo "==> model_int8.onnx already exists, skipping quantization."
+fi
+
 echo "==> Done. Start the server with:"
 echo "    uv run uvicorn main:app --port 8080 --reload"
+echo "    USE_INT8=true uv run uvicorn main:app --port 8080 --reload"

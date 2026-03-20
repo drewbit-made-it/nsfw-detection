@@ -12,6 +12,11 @@ if [ ! -f model.onnx ]; then
   exit 1
 fi
 
+if [ "${USE_INT8:-false}" = "true" ] && [ ! -f model_int8.onnx ]; then
+  echo "Error: model_int8.onnx not found but USE_INT8=true. Run ./setup.sh first."
+  exit 1
+fi
+
 if docker ps -q --filter "name=^${CONTAINER}$" | grep -q .; then
   echo "Already running. Stop it first with ./stop.sh"
   exit 1
@@ -26,7 +31,12 @@ echo "==> Building image..."
 docker build -t "$IMAGE" .
 
 echo "==> Starting container on port ${PORT}..."
-docker run -d --name "$CONTAINER" -p "${PORT}:8080" -e API_KEY="${API_KEY}" "$IMAGE"
+docker run --rm -d --name "$CONTAINER" -p "${PORT}:8080" \
+  -e API_KEY="${API_KEY}" \
+  -e MAX_IMAGE_MB="${MAX_IMAGE_MB:-10}" \
+  -e SERVERLESS="${SERVERLESS:-true}" \
+  -e USE_INT8="${USE_INT8:-false}" \
+  "$IMAGE"
 
 echo "==> Done. API available at http://localhost:${PORT}"
 echo "    Health check: curl http://localhost:${PORT}/health"
