@@ -23,4 +23,4 @@ COPY main.py model.onnx ./
 COPY --from=quantizer /app/model_int8.onnx ./
 
 EXPOSE 8080
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "exec uv run uvicorn main:app --host 0.0.0.0 --port 8080 --log-level ${LOG_LEVEL:-info}"]

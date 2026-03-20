@@ -25,5 +25,9 @@ else
 fi
 
 echo "==> Done. Start the server with:"
-echo "    uv run uvicorn main:app --port 8080 --reload"
-echo "    USE_INT8=true uv run uvicorn main:app --port 8080 --reload"
+echo ""
+echo "    Serverless mode (default):"
+echo "    API_KEY=your-secret-key MAX_IMAGE_MB=10 SERVERLESS=true USE_INT8=false LOG_LEVEL=info uv run uvicorn main:app --port 8080 --reload"
+echo ""
+echo "    Performance mode:"
+echo "    API_KEY=your-secret-key MAX_IMAGE_MB=10 SERVERLESS=false USE_INT8=true LOG_LEVEL=warning uv run uvicorn main:app --port 8080 --log-level warning"

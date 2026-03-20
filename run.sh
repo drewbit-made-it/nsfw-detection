@@ -36,6 +36,7 @@ docker run --rm -d --name "$CONTAINER" -p "${PORT}:8080" \
   -e MAX_IMAGE_MB="${MAX_IMAGE_MB:-10}" \
   -e SERVERLESS="${SERVERLESS:-true}" \
   -e USE_INT8="${USE_INT8:-false}" \
+  -e LOG_LEVEL="${LOG_LEVEL:-info}" \
   "$IMAGE"
 
 echo "==> Done. API available at http://localhost:${PORT}"

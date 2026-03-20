@@ -10,7 +10,7 @@ import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel
+from pydantic import BaseModel, AnyHttpUrl
 
 API_KEY = os.environ.get("API_KEY", "")
 
@@ -20,6 +20,7 @@ _MAX_IMAGE_MB = min(float(os.environ.get("MAX_IMAGE_MB", 10)), 50)  # default 10
 MAX_IMAGE_BYTES = int(_MAX_IMAGE_MB * 1024 * 1024)
 IS_SERVERLESS = os.environ.get("SERVERLESS", "true").lower() in ("true", "1", "yes")
 USE_INT8 = os.environ.get("USE_INT8", "false").lower() in ("true", "1", "yes")
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "info").lower()
 
 _MODEL_PATH = "model_int8.onnx" if USE_INT8 else "model.onnx"
 
@@ -85,8 +86,9 @@ async def lifespan(app: FastAPI):
         )
         # One thread per core — lets the event loop pipeline downloads while
         # inference runs. ONNX already parallelises internally per call.
-        _executor = ThreadPoolExecutor(max_workers=os.cpu_count())
-        print(f"HTTP client: aiohttp (performance), executor: {os.cpu_count()} workers")
+        workers = os.cpu_count() or 1
+        _executor = ThreadPoolExecutor(max_workers=workers)
+        print(f"HTTP client: aiohttp (performance), executor: {workers} workers")
     yield
     if _httpx_client:
         await _httpx_client.aclose()
@@ -142,10 +144,11 @@ def predict(data: bytes, download_ms: float) -> dict:
         "normalize_ms":  round(normalize_ms, 2),
         "inference_ms":  round(inference_ms, 2),
     }
-    print(
-        f"[{'INT8' if USE_INT8 else 'FP32'}|{'httpx' if IS_SERVERLESS else 'aiohttp'}] "
-        + "  ".join(f"{k}={v}ms" for k, v in timing.items())
-    )
+    if LOG_LEVEL == "info":
+        print(
+            f"[{'INT8' if USE_INT8 else 'FP32'}|{'httpx' if IS_SERVERLESS else 'aiohttp'}] "
+            + "  ".join(f"{k}={v}ms" for k, v in timing.items())
+        )
     return {"label": label, "scores": {l: float(p) for l, p in zip(LABELS, probs)}, "timing_ms": timing}
 
 
@@ -184,7 +187,7 @@ async def _fetch(url: str) -> tuple[bytes, float]:
 
 
 class ClassifyRequest(BaseModel):
-    url: str
+    url: AnyHttpUrl
 
 
 def check_api_key(credentials: HTTPAuthorizationCredentials = Security(_bearer)):
@@ -195,7 +198,7 @@ def check_api_key(credentials: HTTPAuthorizationCredentials = Security(_bearer))
 @app.post("/classify")
 async def classify(req: ClassifyRequest, _: None = Security(check_api_key)):
     t_start = time.perf_counter()
-    data, download_ms = await _fetch(req.url)
+    data, download_ms = await _fetch(str(req.url))
     try:
         if IS_SERVERLESS:
             result = predict(data, download_ms)
