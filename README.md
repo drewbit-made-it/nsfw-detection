@@ -43,23 +43,30 @@ Returns `{"status": "ok"}`. No auth required. Use this as your container health 
 
 Requires Docker. Run `./setup.sh` once to download and convert the model (~500 MB).
 
+**1. Configure your environment:**
 ```bash
-./setup.sh
-API_KEY=your-secret-key ./run.sh    # start on port 8080
-./stop.sh                           # stop and remove the container
+cp .env.example .env
+# Edit .env and set API_KEY to a secret value
 ```
 
-Override the port if needed:
+**2. Start and stop:**
 ```bash
-PORT=9090 API_KEY=your-secret-key ./run.sh
+./setup.sh   # first time only
+./run.sh     # build image and start on port 8080
+./stop.sh    # stop and remove the container
+```
+
+Override the port in `.env` or inline:
+```bash
+PORT=9090 ./run.sh
 ```
 
 ## Testing
 
-With the server running, execute the test script to classify a set of sample images:
+With the server running, run the test script to classify a set of sample images:
 
 ```bash
-API_KEY=your-secret-key ./test.sh
+./test.sh
 ```
 
 Output:
@@ -76,8 +83,9 @@ Add or swap image URLs by editing the `IMAGES` array in `test.sh`.
 Requires `uv`.
 
 ```bash
+cp .env.example .env  # set API_KEY in .env
 ./setup.sh
-API_KEY=your-secret-key uv run uvicorn main:app --port 8080 --reload
+uv run uvicorn main:app --port 8080 --reload
 ```
 
 ---
