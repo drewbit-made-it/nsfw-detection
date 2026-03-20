@@ -79,11 +79,6 @@ Expected response:
   }
 }
 ```
-Stop the demo:
-```bash
-docker stop nsfw-detection-demo
-```
-
 ---
 
 ## Quickstart (Docker — recommended)
