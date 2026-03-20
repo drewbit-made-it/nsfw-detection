@@ -39,6 +39,47 @@ Returns `{"status": "ok"}`. No auth required. Use this as your container health 
 
 ---
 
+## Quick demo (one command)
+
+If you just want to try the API without cloning the repo, pull the pre-built image and run it with your key, size limit, and port inline:
+
+```bash
+docker run --rm -p 8080:8080 \
+  -e API_KEY=your-secret-key \
+  -e MAX_IMAGE_MB=10 \
+  yourdockerhubuser/nsfw-detection:latest
+```
+
+Then hit the endpoint:
+
+```bash
+curl -s -X POST http://localhost:8080/classify \
+  -H "Authorization: Bearer your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg"}' | jq
+```
+
+Expected response:
+```json
+{
+  "label": "normal",
+  "scores": {
+    "normal": 0.9990,
+    "nsfw": 0.0010
+  }
+}
+```
+
+| Flag | Purpose |
+|---|---|
+| `-e API_KEY=...` | Bearer token required on every `/classify` request |
+| `-e MAX_IMAGE_MB=10` | Max image size in MB (default `10`, ceiling `50`) |
+| `-p 8080:8080` | Map host port → container port (`-p <host>:<container>`) |
+
+Change `-p 9090:8080` to expose on a different host port. The container always listens on `8080` internally.
+
+---
+
 ## Quickstart (Docker — recommended)
 
 Requires Docker. Run `./setup.sh` once to download and convert the model (~500 MB).
