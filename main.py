@@ -14,7 +14,8 @@ API_KEY = os.environ.get("API_KEY", "")
 
 # Labels from Falconsai/nsfw_image_detection
 LABELS = ["normal", "nsfw"]
-MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
+_MAX_IMAGE_MB = min(float(os.environ.get("MAX_IMAGE_MB", 10)), 50)  # default 10 MB, ceiling 50 MB
+MAX_IMAGE_BYTES = int(_MAX_IMAGE_MB * 1024 * 1024)
 
 # Load model once at startup — tuned for low RAM in serverless
 _opts = ort.SessionOptions()

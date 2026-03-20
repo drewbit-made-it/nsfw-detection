@@ -31,7 +31,7 @@ curl -X POST http://localhost:8080/classify -H "Authorization: Bearer your-secre
 
 All requests to `/classify` require a bearer token. Requests without a valid token are rejected with `401`.
 
-**Limits:** Images over 10 MB are rejected with `413`. To change this, edit `MAX_IMAGE_BYTES` at the top of `main.py`.
+**Limits:** Images over 10 MB are rejected with `413`. Override via `MAX_IMAGE_MB` in `.env` (default: `10`, hard ceiling: `50`). Decimals are supported — e.g. `0.5` for 500 KB.
 
 ### `GET /health`
 
