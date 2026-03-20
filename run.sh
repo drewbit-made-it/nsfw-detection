@@ -17,6 +17,11 @@ if docker ps -q --filter "name=^${CONTAINER}$" | grep -q .; then
   exit 1
 fi
 
+if [ -z "$API_KEY" ]; then
+  echo "Warning: API_KEY is not set. All requests will be rejected with 401."
+  echo "         Set API_KEY in .env or the environment before running."
+fi
+
 echo "==> Building image..."
 docker build -t "$IMAGE" .
 

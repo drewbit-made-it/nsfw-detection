@@ -19,14 +19,20 @@ echo "Testing ${HOST}/classify"
 echo "-------------------------------------------"
 
 for url in "${IMAGES[@]}"; do
-  response=$(curl -sf -X POST "${HOST}/classify" \
+  response=$(curl -s -X POST "${HOST}/classify" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${API_KEY}" \
     -d "{\"url\":\"${url}\"}")
 
-  if [ $? -ne 0 ]; then
-    echo "FAIL  $url"
-    echo "      (is the server running?)"
+  if [ $? -ne 0 ] || [ -z "$response" ]; then
+    echo "FAIL  could not reach server — is it running?"
+    continue
+  fi
+
+  if echo "$response" | grep -q '"detail"'; then
+    detail=$(echo "$response" | grep -o '"detail":"[^"]*"' | cut -d'"' -f4)
+    echo "ERROR $detail"
+    echo "      $url"
     continue
   fi
 
