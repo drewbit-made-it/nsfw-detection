@@ -1,0 +1,8 @@
+.venv
+.git
+.gitignore
+.python-version
+nsfw_model/
+__pycache__
+*.pyc
+README.md

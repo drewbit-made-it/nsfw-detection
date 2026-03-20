@@ -1,0 +1,19 @@
+# Model — too large for git, regenerate with ./setup.sh
+model.onnx
+nsfw_model/
+
+# Virtual environment
+.venv
+
+# Python
+__pycache__/
+*.py[oc]
+
+# Editor
+.vscode/
+
+# Secrets
+.env
+
+# macOS
+.DS_Store
