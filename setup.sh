@@ -26,8 +26,11 @@ fi
 
 echo "==> Done. Start the server with:"
 echo ""
-echo "    Serverless mode (default):"
+echo "    Docker (recommended):"
+echo "    ./run.sh"
+echo ""
+echo "    Local — serverless mode (default):"
 echo "    API_KEY=your-secret-key MAX_IMAGE_MB=10 SERVERLESS=true USE_INT8=false LOG_LEVEL=info uv run uvicorn main:app --port 8080 --reload"
 echo ""
-echo "    Performance mode:"
+echo "    Local — performance mode:"
 echo "    API_KEY=your-secret-key MAX_IMAGE_MB=10 SERVERLESS=false USE_INT8=true LOG_LEVEL=warning uv run uvicorn main:app --port 8080 --log-level warning"

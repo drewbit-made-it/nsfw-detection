@@ -22,6 +22,12 @@ if docker ps -q --filter "name=^${CONTAINER}$" | grep -q .; then
   exit 1
 fi
 
+if lsof -i ":${PORT}" -sTCP:LISTEN -t &>/dev/null; then
+  echo "Error: port ${PORT} is already in use."
+  echo "       Stop whatever is using it, or set a different port: PORT=9090 ./run.sh"
+  exit 1
+fi
+
 if [ -z "$API_KEY" ]; then
   echo "Warning: API_KEY is not set. All requests will be rejected with 401."
   echo "         Set API_KEY in .env or the environment before running."

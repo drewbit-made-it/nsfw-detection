@@ -2,7 +2,7 @@
 
 [ -f .env ] && source .env
 
-HOST="${HOST:-http://localhost:8080}"
+HOST="${HOST:-http://localhost:${PORT:-8080}}"
 API_KEY="${API_KEY:-}"
 
 # Add image URLs here to test the classifier
